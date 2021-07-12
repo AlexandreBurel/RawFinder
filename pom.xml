@@ -6,13 +6,15 @@
 
     <groupId>fr.lsmbo</groupId>
     <artifactId>RawFinder</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <description>Search raw files in the archives</description>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <project.build.date>2021-02-25</project.build.date>
+<!--        <project.build.date>2021-02-25</project.build.date>-->
+        <maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
+        <project.build.date>${maven.build.timestamp}</project.build.date>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <finalOutputDirectory>${project.build.directory}/${project.artifactId}-${project.version}</finalOutputDirectory>
@@ -148,6 +150,24 @@
                     </execution>
                 </executions>
             </plugin>
+
+<!--            <plugin>-->
+<!--                <groupId>org.codehaus.mojo</groupId>-->
+<!--                <artifactId>buildnumber-maven-plugin</artifactId>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>initialize</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>create</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <doCheck>false</doCheck>-->
+<!--                    <doUpdate>false</doUpdate>-->
+<!--                    <timestampFormat>{0,date,yyyy-MM-dd HH:mm:ss}</timestampFormat>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
 
         </plugins>
     </build>

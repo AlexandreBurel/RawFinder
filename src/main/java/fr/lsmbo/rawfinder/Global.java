@@ -4,15 +4,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
+import java.nio.file.Files;
+import java.nio.file.attribute.DosFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.net.InetAddress;
 
@@ -137,6 +137,24 @@ public class Global {
 
     public String getAppTitle() {
         return appName + " " + appVersion + " (" + appDate + ")";
+    }
+
+    public Date getCreationTimeAsDate(File file) {
+        FileTime time = getCreationTime(file);
+        if(time != null) return new Date(time.toMillis());
+        return null;
+    }
+
+    public FileTime getCreationTime(File file) {
+        try {
+            if(file != null && file.exists()) {
+                DosFileAttributes attributes = Files.readAttributes(file.toPath(), DosFileAttributes.class);
+                return attributes.creationTime();
+            }
+        } catch (IOException ioe) {
+            logger.warn("File " + file.getAbsolutePath() + ": creation date could not be read, can't retrieve archived version", ioe);
+        } catch (Throwable ignored) {}
+        return null;
     }
 
     public String getLicence() {
