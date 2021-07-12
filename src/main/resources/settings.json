@@ -1,0 +1,11 @@
+{
+  "rawDataDirectory": "D:\\temp\\Archives\\Files",
+  "archiveDirectory": "D:\\temp\\Archives\\Archivées",
+  "defaultReportDirectory": "Reports",
+
+  "isFolderLike": true,
+  "folderLikeRawDataTemplate": "TP.*\\.d",
+  "folderLikeRawDataExtension": ".tdf .tdf_bin .sqlite .sqlite-journal SampleInfo.xml",
+  "fileLikeRawDataTemplate": "Q.*\\.raw"
+
+}
