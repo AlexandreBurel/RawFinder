@@ -27,8 +27,8 @@ public class Settings {
     }
 
     public Settings(File rawDataDirectory, File archiveDirectory, Boolean isFolderLike, List<String> folderLikeRawDataTemplate, List<String> fileLikeRawDataTemplate) {
-        this.rawDataDirectory = rawDataDirectory.getAbsolutePath();
-        this.archiveDirectory = archiveDirectory.getAbsolutePath();
+        this.rawDataDirectory = rawDataDirectory == null ? "" : rawDataDirectory.getAbsolutePath();
+        this.archiveDirectory = archiveDirectory == null ? "" : archiveDirectory.getAbsolutePath();
         this.isFolderLike = isFolderLike;
         this.folderLikeRawDataTemplate = String.join(" ", folderLikeRawDataTemplate);
         this.fileLikeRawDataTemplate = String.join(" ", fileLikeRawDataTemplate);

@@ -14,9 +14,12 @@ public class Main {
             logger.info("Starting RawFinder");
             // load configuration
             Global.initialize();
+            // Start GUI if requested
             if(args.length > 0 && args[0].toLowerCase(Locale.ROOT).equals("gui")) {
                 GuiLauncher.run();
             } else {
+                // Or run automatically in CLI
+                if(Global.areSettingsValid()) throw new Exception("Settings seem to be incomplete");
                 // read local directories and fill data
                 DataParser parser = new DataParser(Global.RAW_DATA_DIRECTORY);
                 parser.start();

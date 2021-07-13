@@ -53,8 +53,10 @@ public class Global {
                 StandardCharsets.UTF_8));
         Settings settings = gson.fromJson(reader, Settings.class);
 
-        RAW_DATA_DIRECTORY = new File(settings.getRawDataDirectory());
-        RAW_DATA_ARCHIVES = new File(settings.getArchiveDirectory());
+//        RAW_DATA_DIRECTORY = new File(settings.getRawDataDirectory());
+//        RAW_DATA_ARCHIVES = new File(settings.getArchiveDirectory());
+        RAW_DATA_DIRECTORY = settings.getRawDataDirectory().equals("") ? null : new File(settings.getRawDataDirectory());
+        RAW_DATA_ARCHIVES = settings.getArchiveDirectory().equals("") ? null : new File(settings.getArchiveDirectory());
         REPORTS_DIRECTORY = new File(settings.getDefaultReportDirectory());
         IS_FOLDER_LIKE = settings.getFolderLike();
         FOLDER_LIKE_RAW_DATA_TEMPLATE = Arrays.stream(settings.getFolderLikeRawDataTemplate().split(" ")).collect(Collectors.toList());
@@ -62,10 +64,16 @@ public class Global {
         FILE_LIKE_RAW_DATA_TEMPLATE = Arrays.stream(settings.getFileLikeRawDataTemplate().split(" ")).collect(Collectors.toList());
 
         // make sure the mandatory directories are available (if not, maybe the settings file is not encoded in UTF8 ?)
-        if(!RAW_DATA_DIRECTORY.exists() || !RAW_DATA_DIRECTORY.isDirectory()) throw new Exception("Data directory '"+RAW_DATA_DIRECTORY.getAbsolutePath()+"' is not available");
-        if(!RAW_DATA_ARCHIVES.exists() || !RAW_DATA_ARCHIVES.isDirectory()) throw new Exception("Archive directory '"+RAW_DATA_ARCHIVES.getAbsolutePath()+"' is not available");
+//        if(!RAW_DATA_DIRECTORY.exists() || !RAW_DATA_DIRECTORY.isDirectory()) throw new Exception("Data directory '"+RAW_DATA_DIRECTORY.getAbsolutePath()+"' is not available");
+//        if(!RAW_DATA_ARCHIVES.exists() || !RAW_DATA_ARCHIVES.isDirectory()) throw new Exception("Archive directory '"+RAW_DATA_ARCHIVES.getAbsolutePath()+"' is not available");
+        if(RAW_DATA_DIRECTORY == null) logger.warn("Data directory is not available");
+        if(RAW_DATA_ARCHIVES == null) logger.warn("Archive directory is not available");
         // make sure the report directory exists, otherwise use the home directory
         if(!REPORTS_DIRECTORY.exists() && !REPORTS_DIRECTORY.mkdir()) REPORTS_DIRECTORY = new File(System.getProperty("user.home"));
+    }
+
+    public static Boolean areSettingsValid() {
+        return (Global.RAW_DATA_DIRECTORY != null && Global.RAW_DATA_DIRECTORY.exists() && Global.RAW_DATA_ARCHIVES != null && Global.RAW_DATA_ARCHIVES.exists());
     }
 
     private static Boolean matchesAny(String name, List<String> list) {

@@ -106,6 +106,9 @@ public class Gui {
         btnClear.setDisable(true);
         btnExport.setDisable(true);
         btnCancel.setDisable(true);
+
+        // open settings if they need to be modified
+        if(!Global.areSettingsValid()) settingsListener();
     }
 
     private String formatFileSize(long size) {
@@ -119,30 +122,35 @@ public class Gui {
 
     @FXML
     private void startListener() {
-        data.clear();
-        parser = new DataParser(Global.RAW_DATA_DIRECTORY);
-        try {
-            toggleButtons();
-            final DataParserThread thread = new DataParserThread();
-            thread.setParentDirectory(Global.RAW_DATA_DIRECTORY);
-            thread.setOnSucceeded(event -> {
-                DataParser parser = thread.getValue();
-                parser.getAsRawData().keySet().forEach(key -> data.add(parser.getAsRawData().get(key)));
+        // check if the settings are ok before launching the process
+        if(!Global.areSettingsValid()) {
+            showAlertDialog(Alert.AlertType.ERROR, "Data parsing error", "Settings seems to be incomplete");
+        } else {
+            data.clear();
+            parser = new DataParser(Global.RAW_DATA_DIRECTORY);
+            try {
                 toggleButtons();
-            });
-            thread.setOnFailed(event -> {
-                showAlertDialog(Alert.AlertType.ERROR, "Data parsing error", event.getSource().getMessage());
-                logger.error(event.getSource().getMessage(), event.getSource());
-                toggleButtons();
-            });
-            thread.setOnCancelled(event -> {
-                showAlertDialog(Alert.AlertType.INFORMATION, null, "Data parsing cancelled");
-                toggleButtons();
-            });
-            new Thread(thread).start();
-        } catch (Throwable t) {
-            showAlertDialog(Alert.AlertType.ERROR, "Data parsing error", t.getMessage());
-            logger.error(t.getMessage(), t);
+                final DataParserThread thread = new DataParserThread();
+                thread.setParentDirectory(Global.RAW_DATA_DIRECTORY);
+                thread.setOnSucceeded(event -> {
+                    DataParser parser = thread.getValue();
+                    parser.getAsRawData().keySet().forEach(key -> data.add(parser.getAsRawData().get(key)));
+                    toggleButtons();
+                });
+                thread.setOnFailed(event -> {
+                    showAlertDialog(Alert.AlertType.ERROR, "Data parsing error", event.getSource().getMessage());
+                    logger.error(event.getSource().getMessage(), event.getSource());
+                    toggleButtons();
+                });
+                thread.setOnCancelled(event -> {
+                    showAlertDialog(Alert.AlertType.INFORMATION, null, "Data parsing cancelled");
+                    toggleButtons();
+                });
+                new Thread(thread).start();
+            } catch (Throwable t) {
+                showAlertDialog(Alert.AlertType.ERROR, "Data parsing error", t.getMessage());
+                logger.error(t.getMessage(), t);
+            }
         }
     }
 
@@ -202,30 +210,6 @@ public class Gui {
                     logger.error(event.getSource().getMessage(), event.getSource());
                 });
                 new Thread(thread).start();
-
-
-
-//                Export export = new Export(parser);
-//
-//                try {
-//                    toggleProgressIndicator();
-//                    new Thread(() -> Platform.runLater(() -> {
-//                        try {
-//                            export.start(outputFile);
-//                            showAlertDialog(Alert.AlertType.INFORMATION, null, "Export is finished");
-//                        } catch (Throwable throwable) {
-//                            showAlertDialog(Alert.AlertType.ERROR, "Export error", throwable.getMessage());
-//                            logger.error(throwable.getMessage(), throwable);
-//                            throwable.printStackTrace();
-//                        }
-//                        toggleProgressIndicator();
-//                    })).start();
-//                } catch (Throwable t) {
-//                    showAlertDialog(Alert.AlertType.ERROR, "Export error", t.getMessage());
-//                    logger.error(t.getMessage(), t);
-//                }
-//                export.start(outputFile);
-//                showAlertDialog(Alert.AlertType.INFORMATION, null, "Export is finished");
             }
         } catch (Throwable t) {
             // display the error message if any
