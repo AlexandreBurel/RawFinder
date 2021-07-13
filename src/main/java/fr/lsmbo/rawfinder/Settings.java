@@ -2,6 +2,9 @@ package fr.lsmbo.rawfinder;
 
 import com.sun.org.apache.xpath.internal.operations.Bool;
 
+import java.io.File;
+import java.util.List;
+
 public class Settings {
 
     private String rawDataDirectory;
@@ -21,6 +24,14 @@ public class Settings {
         this.folderLikeRawDataTemplate = folderLikeRawDataTemplate;
         this.folderLikeRawDataExtension = folderLikeRawDataExtension;
         this.fileLikeRawDataTemplate = fileLikeRawDataTemplate;
+    }
+
+    public Settings(File rawDataDirectory, File archiveDirectory, Boolean isFolderLike, List<String> folderLikeRawDataTemplate, List<String> fileLikeRawDataTemplate) {
+        this.rawDataDirectory = rawDataDirectory.getAbsolutePath();
+        this.archiveDirectory = archiveDirectory.getAbsolutePath();
+        this.isFolderLike = isFolderLike;
+        this.folderLikeRawDataTemplate = String.join(" ", folderLikeRawDataTemplate);
+        this.fileLikeRawDataTemplate = String.join(" ", fileLikeRawDataTemplate);
     }
 
     public Settings() {}

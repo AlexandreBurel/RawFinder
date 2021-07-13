@@ -15,37 +15,30 @@ import java.util.stream.Collectors;
 public class Export {
 
     protected final Logger logger = LoggerFactory.getLogger(Export.class);
-    private final Global global;
     private final HashMap<File, File> data;
-    private static final HashMap<String, Status> statusPerRawFile = new HashMap<>();
+    private final HashMap<String, RawData> rawData;
+    private final HashMap<String, Integer> countPerStatus;
 
-    private enum Status {
-        FULLY_ARCHIVED ("Fully archived"),
-        PARTIALLY_ARCHIVED ("Partially archived"),
-        NOT_ARCHIVED ("Not archived");
-        private final String name;
-        Status(String status) { name = status; }
-        public String toString() { return this.name; }
+    public Export(DataParser parserResult) {
+        data = parserResult.getData();
+        rawData = parserResult.getAsRawData();
+        countPerStatus = parserResult.getCountPerStatus();
     }
 
-    public Export(Global _global, HashMap<File, File> _data) {
-        global = _global;
-        data = _data;
+    public static String getDefaultFileName() {
+        String host = Global.getHostname();
+        String time = Global.simpleFormatDate(new Date().getTime());
+        return "RawFinder-"+host+"-"+time+".xlsx";
     }
 
     public void start() throws Throwable {
-        // generate excel output
-        String host = global.getHostname();
-        String time = global.simpleFormatDate(new Date().getTime());
-        // generate the output file name
-        File excelFile = new File(global.REPORTS_DIRECTORY, "RawFinder-"+host+"-"+time+".xlsx");
-        start(excelFile);
+        start(new File(Global.REPORTS_DIRECTORY, getDefaultFileName()));
     }
 
     public void start(File excelFile) throws Throwable {
         // generate excel output
-        String host = global.getHostname();
-        String time = global.simpleFormatDate(new Date().getTime());
+        String host = Global.getHostname();
+        String time = Global.simpleFormatDate(new Date().getTime());
         // creation of the excel object
         logger.info("Writing Excel output file");
         Workbook workbook = new XSSFWorkbook();
@@ -77,21 +70,20 @@ public class Export {
         CellStyle defaultStyle = workbook.createCellStyle();
 
         // Describe the environment first
-        addRow(sheet, rowNum++, new String[] { "Software", global.getAppTitle() });
+        addRow(sheet, rowNum++, new String[] { "Software", Global.getAppTitle() });
         Row row1 = sheet.createRow(rowNum++);
         addCell(row1, 0, "Report date", defaultStyle);
         addCell(row1, 1, new Date(), defaultDateStyle);
         addRow(sheet, rowNum++, new String[] { "Host name", host });
-        addRow(sheet, rowNum++, new String[] { "User name", global.getUsername() });
-        addRow(sheet, rowNum++, new String[] { "Archive directory", global.RAW_DATA_ARCHIVES.getAbsolutePath() });
-        addRow(sheet, rowNum++, new String[] { "RAW data directory", global.RAW_DATA_DIRECTORY.getAbsolutePath() });
-        if(global.IS_FOLDER_LIKE) {
+        addRow(sheet, rowNum++, new String[] { "User name", Global.getUsername() });
+        addRow(sheet, rowNum++, new String[] { "Archive directory", Global.RAW_DATA_ARCHIVES.getAbsolutePath() });
+        addRow(sheet, rowNum++, new String[] { "RAW data directory", Global.RAW_DATA_DIRECTORY.getAbsolutePath() });
+        if(Global.IS_FOLDER_LIKE) {
             addRow(sheet, rowNum++, new String[]{"RAW data type", "Directory"});
-            addRow(sheet, rowNum++, new String[]{"RAW data directory template", String.join(", ", global.FOLDER_LIKE_RAW_DATA_TEMPLATE)});
-            addRow(sheet, rowNum++, new String[]{"RAW data file extension", String.join(", ", global.FOLDER_LIKE_RAW_DATA_EXTENSION)});
+            addRow(sheet, rowNum++, new String[]{"RAW data directory template", String.join(", ", Global.FOLDER_LIKE_RAW_DATA_TEMPLATE)});
         } else {
             addRow(sheet, rowNum++, new String[]{"RAW data type", "File"});
-            addRow(sheet, rowNum++, new String[]{"RAW data file template", String.join(", ", global.FILE_LIKE_RAW_DATA_TEMPLATE)});
+            addRow(sheet, rowNum++, new String[]{"RAW data file template", String.join(", ", Global.FILE_LIKE_RAW_DATA_TEMPLATE)});
         }
         int rowForFullyArchived = rowNum;
         addRow(sheet, rowNum++, new String[] { "Raw data fully archived" });
@@ -113,25 +105,26 @@ public class Export {
 
         // write the data content
         String lastRawFileName = "";
+        int nbRawFilesWritten = 0;
         for(File file : data.keySet().stream().sorted().collect(Collectors.toList())) {
             Row row = sheet.createRow(rowNum++);
             int col = 0;
-            String currentRawFileName = global.getRawFileName(file);
+            String currentRawFileName = Global.getRawFileName(file);
             if(!missingOrIncorrectArchives.containsKey(currentRawFileName)) missingOrIncorrectArchives.put(currentRawFileName, 0);
             nbFilesPerRawFolder.put(currentRawFileName, nbFilesPerRawFolder.containsKey(currentRawFileName) ? nbFilesPerRawFolder.get(currentRawFileName) + 1 : 1);
-            CellStyle style = (global.IS_FOLDER_LIKE && !currentRawFileName.equals(lastRawFileName) ? topStyle : defaultStyle);
-            CellStyle dateStyle = (global.IS_FOLDER_LIKE && !currentRawFileName.equals(lastRawFileName) ? topDateStyle : defaultDateStyle);
+            CellStyle style = (Global.IS_FOLDER_LIKE && !currentRawFileName.equals(lastRawFileName) ? topStyle : defaultStyle);
+            CellStyle dateStyle = (Global.IS_FOLDER_LIKE && !currentRawFileName.equals(lastRawFileName) ? topDateStyle : defaultDateStyle);
             addCell(row, col++, currentRawFileName, style); // A
             addCell(row, col++, file.getAbsolutePath(), style); // B
-            addCell(row, col++, global.formatSize(file.length()), style); // C
+            addCell(row, col++, Global.formatSize(file.length()), style); // C
             addCell(row, col++, file.length(), style); // D
-            addCell(row, col++, global.getCreationTimeAsDate(file), dateStyle); // E
+            addCell(row, col++, Global.getCreationTimeAsDate(file), dateStyle); // E
             addCell(row, col++, new Date(file.lastModified()), dateStyle); // F
             File archive = data.get(file);
             if(archive != null) {
                 addCell(row, col++, archive.getAbsolutePath(), style); // G
                 addCell(row, col++, archive.length(), style); // H
-                addCell(row, col++, global.getCreationTimeAsDate(archive), dateStyle); // I
+                addCell(row, col++, Global.getCreationTimeAsDate(archive), dateStyle); // I
                 if(file.length() == archive.length()) {
                     addCell(row, col, "TRUE", style); //J (using text to avoid a large number of formulas)
                 } else {
@@ -149,8 +142,10 @@ public class Export {
 //                addFormula(row, col++, "AND(NOT(ISBLANK(H"+rowNum+")),D"+rowNum+"=H"+rowNum+")", style); // J
             // add a formula to check that all files in a raw file have the same size: NB.SI(A:A;A9)=NB.SI.ENS(A:A;A9;J:J;VRAI)
 //                addFormula(row, col, "COUNTIF(A:A,A"+rowNum+")=COUNTIFS(A:A,A"+rowNum+",J:J,TRUE)", style); // K
+            if(!currentRawFileName.equals(lastRawFileName)) nbRawFilesWritten += 1;
             lastRawFileName = currentRawFileName;
-            if(rowNum % 100 == 0) logger.info(rowNum + " lines written...");
+//            if(rowNum % 100 == 0) logger.info(rowNum + " lines written...");
+            if(nbRawFilesWritten % 100 == 0) logger.info(nbRawFilesWritten + " raw data exported...");
         }
 
         // second loop to fill column K without using a formula
@@ -159,34 +154,36 @@ public class Export {
         logger.info("Add final formulas");
         for(File file : data.keySet().stream().sorted().collect(Collectors.toList())) {
             Row row = sheet.getRow(rowNum++);
-            String currentRawFileName = global.getRawFileName(file);
-            CellStyle style = (global.IS_FOLDER_LIKE && !currentRawFileName.equals(lastRawFileName) ? topStyle : defaultStyle);
+            String currentRawFileName = Global.getRawFileName(file);
+            CellStyle style = (Global.IS_FOLDER_LIKE && !currentRawFileName.equals(lastRawFileName) ? topStyle : defaultStyle);
             addCell(row, 10, (missingOrIncorrectArchives.get(currentRawFileName) == 0 ? "TRUE" : "FALSE"), style); //K
             lastRawFileName = currentRawFileName;
 
-            Status status = Status.NOT_ARCHIVED;
-            if(missingOrIncorrectArchives.get(currentRawFileName) == 0) {
-                status = Status.FULLY_ARCHIVED;
-            } else if(!missingOrIncorrectArchives.get(currentRawFileName).equals(nbFilesPerRawFolder.get(currentRawFileName))) {
-                status = Status.PARTIALLY_ARCHIVED;
-            }
-            statusPerRawFile.put(currentRawFileName, status);
-            addCell(row, 11, status.toString(), style); //L
+//            Status status = Status.NOT_ARCHIVED;
+//            if(missingOrIncorrectArchives.get(currentRawFileName) == 0) {
+//                status = Status.FULLY_ARCHIVED;
+//            } else if(!missingOrIncorrectArchives.get(currentRawFileName).equals(nbFilesPerRawFolder.get(currentRawFileName))) {
+//                status = Status.PARTIALLY_ARCHIVED;
+//            }
+//            addCell(row, 11, status.toString(), style); //L
+            String status = rawData.get(currentRawFileName).getStatus();
+            addCell(row, 11, status, style); //L
         }
 
         // final loop to display the summary of how many raw data is fully/partially/not archived
-        HashMap<String, Integer> countPerStatus = new HashMap<>();
-        statusPerRawFile.keySet().forEach( name -> {
-            String status = statusPerRawFile.get(name).toString();
-            countPerStatus.put(status, countPerStatus.containsKey(status) ? countPerStatus.get(status) + 1 : 1);
-        });
+//        HashMap<String, Integer> countPerStatus = new HashMap<>();
+//        statusPerRawFile.keySet().forEach( name -> {
+//            String status = statusPerRawFile.get(name).toString();
+//            countPerStatus.put(status, countPerStatus.containsKey(status) ? countPerStatus.get(status) + 1 : 1);
+//        });
         addCell(sheet.getRow(rowForFullyArchived), 1, ""+countPerStatus.get(Status.FULLY_ARCHIVED.toString()), defaultStyle);
         addCell(sheet.getRow(rowForFullyArchived + 1), 1, ""+countPerStatus.get(Status.PARTIALLY_ARCHIVED.toString()), defaultStyle);
         addCell(sheet.getRow(rowForFullyArchived + 2), 1, ""+countPerStatus.get(Status.NOT_ARCHIVED.toString()), defaultStyle);
-        logger.info("\n\nRawFinder final summary:\n" +
-                "- Number of fully archived raw data: " + countPerStatus.get(Status.FULLY_ARCHIVED.toString()) + "\n" +
-                "- Number of partially archived raw data: " + countPerStatus.get(Status.PARTIALLY_ARCHIVED.toString()) + "\n" +
-                "- Number of raw data not archived at all: " + countPerStatus.get(Status.NOT_ARCHIVED.toString()) + "\n");
+        // TODO print the summary in DataParser
+//        logger.info("\n\nRawFinder final summary:\n" +
+//                "- Number of fully archived raw data: " + countPerStatus.get(Status.FULLY_ARCHIVED.toString()) + "\n" +
+//                "- Number of partially archived raw data: " + countPerStatus.get(Status.PARTIALLY_ARCHIVED.toString()) + "\n" +
+//                "- Number of raw data not archived at all: " + countPerStatus.get(Status.NOT_ARCHIVED.toString()) + "\n");
 
         // add autofilters
         sheet.setAutoFilter(CellRangeAddress.valueOf("A"+(headerLine+1)+":L"+(rowNum-1)));

@@ -22,23 +22,24 @@ import com.google.gson.stream.JsonReader;
 public class Global {
 
     protected static final Logger logger = LoggerFactory.getLogger(Global.class);
-    private String appName = "RawFinder";
-    private String appSubName = "Search raw files in the archives";
-    private String appVersion = "";
-    private String appDate = "";
+    private static String appName = "RawFinder";
+    private static String appSubName = "Search raw files in the archives";
+    private static String appVersion = "";
+    private static String appDate = "";
 
-    public File RAW_DATA_DIRECTORY;
-    public File RAW_DATA_ARCHIVES;
-    public File REPORTS_DIRECTORY;
-    public Boolean IS_FOLDER_LIKE;
-    public List<String> FOLDER_LIKE_RAW_DATA_TEMPLATE;
-    public List<String> FOLDER_LIKE_RAW_DATA_EXTENSION;
-    public List<String> FILE_LIKE_RAW_DATA_TEMPLATE;
+    public static File RAW_DATA_DIRECTORY;
+    public static File RAW_DATA_ARCHIVES;
+    public static File REPORTS_DIRECTORY;
+    public static Boolean IS_FOLDER_LIKE;
+    public static List<String> FOLDER_LIKE_RAW_DATA_TEMPLATE;
+    public static List<String> FOLDER_LIKE_RAW_DATA_EXTENSION;
+    public static List<String> FILE_LIKE_RAW_DATA_TEMPLATE;
 
-    public final String[] MONTH_NAMES = {"janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"};
-    private final String[] units = new String[] { "octets", "ko", "Mo", "Go", "To" };
+    public final static String[] MONTH_NAMES = {"janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"};
+    private final static String[] units = new String[] { "octets", "ko", "Mo", "Go", "To" };
 
-    public Global() throws Throwable {
+//    public Global() throws Throwable {
+    public static void initialize() throws Throwable {
         final Properties properties = new Properties();
         properties.load(Global.class.getClassLoader().getResourceAsStream("RawFinder.properties"));
         appName = properties.getProperty("name");
@@ -57,7 +58,7 @@ public class Global {
         REPORTS_DIRECTORY = new File(settings.getDefaultReportDirectory());
         IS_FOLDER_LIKE = settings.getFolderLike();
         FOLDER_LIKE_RAW_DATA_TEMPLATE = Arrays.stream(settings.getFolderLikeRawDataTemplate().split(" ")).collect(Collectors.toList());
-        FOLDER_LIKE_RAW_DATA_EXTENSION = Arrays.stream(settings.getFolderLikeRawDataExtension().split(" ")).collect(Collectors.toList());
+//        FOLDER_LIKE_RAW_DATA_EXTENSION = Arrays.stream(settings.getFolderLikeRawDataExtension().split(" ")).collect(Collectors.toList());
         FILE_LIKE_RAW_DATA_TEMPLATE = Arrays.stream(settings.getFileLikeRawDataTemplate().split(" ")).collect(Collectors.toList());
 
         // make sure the mandatory directories are available (if not, maybe the settings file is not encoded in UTF8 ?)
@@ -67,33 +68,33 @@ public class Global {
         if(!REPORTS_DIRECTORY.exists() && !REPORTS_DIRECTORY.mkdir()) REPORTS_DIRECTORY = new File(System.getProperty("user.home"));
     }
 
-    private Boolean matchesAny(String name, List<String> list) {
+    private static Boolean matchesAny(String name, List<String> list) {
         for(String item : list) {
             if(name.matches(item)) return true;
         }
         return false;
     }
 
-    private Boolean endsWithAny(String name, List<String> list) {
+    private static Boolean endsWithAny(String name, List<String> list) {
         for(String item : list) {
             if(name.endsWith(item)) return true;
         }
         return false;
     }
 
-    public String getRawFileName(File file) {
+    public static String getRawFileName(File file) {
         if(IS_FOLDER_LIKE) return getRawParentName(file);
         else return file.getName();
     }
 
-    public String getRawParentName(File file) {
+    public static String getRawParentName(File file) {
         while(file != null && !matchesAny(file.getName(), FOLDER_LIKE_RAW_DATA_TEMPLATE)) {
             file = file.getParentFile();
         }
         return (file != null && matchesAny(file.getName(), FOLDER_LIKE_RAW_DATA_TEMPLATE) ? file.getName() : "");
     }
 
-    public Boolean IsRawData(File file) {
+    public static Boolean IsRawData(File file) {
         if(IS_FOLDER_LIKE) {
             if(file.isDirectory()) {
                 return matchesAny(file.getName(), FOLDER_LIKE_RAW_DATA_TEMPLATE);
@@ -109,13 +110,13 @@ public class Global {
         return false;
     }
 
-    public String formatSize(Long _size) {
+    public static String formatSize(Long _size) {
         if(_size <= 0) return "0 octets";
         int digitGroups = (int) (Math.log10(_size)/Math.log10(1024));
         return new DecimalFormat("#,##0.##").format(_size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
 
-    public String getHostname() {
+    public static String getHostname() {
         String hostname = "Unknown";
         try {
             hostname = InetAddress.getLocalHost().getHostName();
@@ -127,25 +128,27 @@ public class Global {
 
 //    private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM);
 //    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
-    private final SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("yyyyMMdd-HHmmss");
+    private static final SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyyMMdd-HHmmss");
+    private static final SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 //    public  String formatDate(Long _date, boolean humanReadable) { return humanReadable ? dateFormat.format(_date) : simpleDateFormat.format(_date); }
-    public  String simpleFormatDate(Long _date) { return simpleDateFormat2.format(_date); }
+    public static String simpleFormatDate(Long _date) { return simpleDateFormat1.format(_date); }
+    public static String simpleFormatDate2(Long _date) { return simpleDateFormat2.format(_date); }
 
-    public String getUsername() {
+    public static String getUsername() {
         return System.getProperty("user.name");
     }
 
-    public String getAppTitle() {
+    public static String getAppTitle() {
         return appName + " " + appVersion + " (" + appDate + ")";
     }
 
-    public Date getCreationTimeAsDate(File file) {
+    public static Date getCreationTimeAsDate(File file) {
         FileTime time = getCreationTime(file);
         if(time != null) return new Date(time.toMillis());
         return null;
     }
 
-    public FileTime getCreationTime(File file) {
+    public static FileTime getCreationTime(File file) {
         try {
             if(file != null && file.exists()) {
                 DosFileAttributes attributes = Files.readAttributes(file.toPath(), DosFileAttributes.class);
@@ -157,7 +160,7 @@ public class Global {
         return null;
     }
 
-    public String getLicence() {
+    public static String getLicence() {
         return 	"Copyright 2021 CNRS\n" +
                 "Authors: Alexandre BUREL\n" +
                 "Corresponding author: Alexandre BUREL\n" +
