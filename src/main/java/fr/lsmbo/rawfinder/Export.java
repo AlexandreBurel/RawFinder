@@ -171,19 +171,9 @@ public class Export {
         }
 
         // final loop to display the summary of how many raw data is fully/partially/not archived
-//        HashMap<String, Integer> countPerStatus = new HashMap<>();
-//        statusPerRawFile.keySet().forEach( name -> {
-//            String status = statusPerRawFile.get(name).toString();
-//            countPerStatus.put(status, countPerStatus.containsKey(status) ? countPerStatus.get(status) + 1 : 1);
-//        });
         addCell(sheet.getRow(rowForFullyArchived), 1, ""+countPerStatus.get(Status.FULLY_ARCHIVED.toString()), defaultStyle);
         addCell(sheet.getRow(rowForFullyArchived + 1), 1, ""+countPerStatus.get(Status.PARTIALLY_ARCHIVED.toString()), defaultStyle);
         addCell(sheet.getRow(rowForFullyArchived + 2), 1, ""+countPerStatus.get(Status.NOT_ARCHIVED.toString()), defaultStyle);
-        // TODO print the summary in DataParser
-//        logger.info("\n\nRawFinder final summary:\n" +
-//                "- Number of fully archived raw data: " + countPerStatus.get(Status.FULLY_ARCHIVED.toString()) + "\n" +
-//                "- Number of partially archived raw data: " + countPerStatus.get(Status.PARTIALLY_ARCHIVED.toString()) + "\n" +
-//                "- Number of raw data not archived at all: " + countPerStatus.get(Status.NOT_ARCHIVED.toString()) + "\n");
 
         // add autofilters
         sheet.setAutoFilter(CellRangeAddress.valueOf("A"+(headerLine+1)+":L"+(rowNum-1)));

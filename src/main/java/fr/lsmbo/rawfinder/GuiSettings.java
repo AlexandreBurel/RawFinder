@@ -6,8 +6,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Arrays;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class GuiSettings {
 
-//    protected static final Logger logger = LoggerFactory.getLogger(GuiSettings.class);
+    protected static final Logger logger = LoggerFactory.getLogger(GuiSettings.class);
     protected Stage dialogStage;
     private final HashMap<Boolean, String> rawDataTypes = new HashMap<Boolean, String>() {{
         put(true, "Folder-like (ie. Bruker .d directories)");
@@ -74,9 +74,10 @@ public class GuiSettings {
     private void rawDataDirectoryButtonListener() {
         DirectoryChooser dc = new DirectoryChooser();
         dc.setTitle("Select Raw Data main directory");
-        String path = txtRawDataDirectory.getText().equals("") ? System.getenv("HOME") : txtRawDataDirectory.getText();
 //        dc.setInitialDirectory(new File(txtRawDataDirectory.getText()));
-        dc.setInitialDirectory(new File(path));
+//        String path = txtRawDataDirectory.getText().equals("") ? System.getenv("HOME") : txtRawDataDirectory.getText();
+//        dc.setInitialDirectory(new File(path));
+        dc.setInitialDirectory(getDirectory(txtRawDataDirectory));
         File directory = dc.showDialog(dialogStage);
         if(directory != null) {
             txtRawDataDirectory.setText(directory.getAbsolutePath());
@@ -88,12 +89,31 @@ public class GuiSettings {
         DirectoryChooser dc = new DirectoryChooser();
         dc.setTitle("Select Archive main directory");
 //        dc.setInitialDirectory(new File(txtArchiveDirectory.getText()));
-        String path = txtArchiveDirectory.getText().equals("") ? System.getenv("HOME") : txtArchiveDirectory.getText();
-        dc.setInitialDirectory(new File(path));
+//        String path = txtArchiveDirectory.getText().equals("") ? System.getenv("HOME") : txtArchiveDirectory.getText();
+//        dc.setInitialDirectory(new File(path));
+        dc.setInitialDirectory(getDirectory(txtArchiveDirectory));
         File directory = dc.showDialog(dialogStage);
         if(directory != null) {
             txtArchiveDirectory.setText(directory.getAbsolutePath());
         }
+    }
+
+    private File getDirectory(TextField textField) {
+        logger.info("ABU HOME='"+System.getProperty("user.home")+"'");
+        File directory = new File(System.getProperty("user.home"));
+        if(textField != null && !textField.getText().equals("")) {
+            directory = new File(textField.getText());
+        }
+
+//        File directory = null;
+//        try {
+//            directory = new File(textField.getText());
+//        } catch (Throwable t) {
+//            logger.debug("ABU HOME='"+System.getenv("HOME")+"'");
+//            logger.error(t.getMessage(), t);
+//            t.printStackTrace();
+//        }
+        return directory;
     }
 
     @FXML
