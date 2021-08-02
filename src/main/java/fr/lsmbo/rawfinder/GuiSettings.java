@@ -41,6 +41,7 @@ public class GuiSettings {
     @FXML
     Button btnCancel;
 
+    @FXML
     public void initialize(Stage _dialogStage) {
         dialogStage = _dialogStage;
         currentSettings = new Settings(Global.RAW_DATA_DIRECTORY, Global.RAW_DATA_ARCHIVES, Global.IS_FOLDER_LIKE, Global.FOLDER_LIKE_RAW_DATA_TEMPLATE, Global.FILE_LIKE_RAW_DATA_TEMPLATE);
@@ -73,7 +74,9 @@ public class GuiSettings {
     private void rawDataDirectoryButtonListener() {
         DirectoryChooser dc = new DirectoryChooser();
         dc.setTitle("Select Raw Data main directory");
-        dc.setInitialDirectory(new File(txtRawDataDirectory.getText()));
+        String path = txtRawDataDirectory.getText().equals("") ? System.getenv("HOME") : txtRawDataDirectory.getText();
+//        dc.setInitialDirectory(new File(txtRawDataDirectory.getText()));
+        dc.setInitialDirectory(new File(path));
         File directory = dc.showDialog(dialogStage);
         if(directory != null) {
             txtRawDataDirectory.setText(directory.getAbsolutePath());
@@ -84,7 +87,9 @@ public class GuiSettings {
     private void archiveDirectoryButtonListener() {
         DirectoryChooser dc = new DirectoryChooser();
         dc.setTitle("Select Archive main directory");
-        dc.setInitialDirectory(new File(txtArchiveDirectory.getText()));
+//        dc.setInitialDirectory(new File(txtArchiveDirectory.getText()));
+        String path = txtArchiveDirectory.getText().equals("") ? System.getenv("HOME") : txtArchiveDirectory.getText();
+        dc.setInitialDirectory(new File(path));
         File directory = dc.showDialog(dialogStage);
         if(directory != null) {
             txtArchiveDirectory.setText(directory.getAbsolutePath());

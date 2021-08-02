@@ -88,6 +88,23 @@ public class Gui {
             }
         });
 
+        tcStatus.setCellFactory(column -> new TableCell<RawData, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                String color = "white";
+                if(item != null) {
+                    if (item.equals(Status.FULLY_ARCHIVED.toString())) color = "limegreen";
+                    else if (item.equals(Status.PARTIALLY_ARCHIVED.toString())) color = "orange";
+                    else if (item.equals(Status.NOT_ARCHIVED.toString())) color = "tomato";
+                    setText(item);
+                } else {
+                    setText("");
+                }
+                this.setStyle("-fx-background-color: " + color + ";");
+            }
+        });
+
         // Confirmation before exit
         exitPopup.setTitle("Quit application");
         exitPopup.setHeaderText("Do you want to quit this application ?");
@@ -127,13 +144,13 @@ public class Gui {
             showAlertDialog(Alert.AlertType.ERROR, "Data parsing error", "Settings seems to be incomplete");
         } else {
             data.clear();
-            parser = new DataParser(Global.RAW_DATA_DIRECTORY);
+//            parser = new DataParser(Global.RAW_DATA_DIRECTORY);
             try {
                 toggleButtons();
                 final DataParserThread thread = new DataParserThread();
                 thread.setParentDirectory(Global.RAW_DATA_DIRECTORY);
                 thread.setOnSucceeded(event -> {
-                    DataParser parser = thread.getValue();
+                    parser = thread.getValue();
                     parser.getAsRawData().keySet().forEach(key -> data.add(parser.getAsRawData().get(key)));
                     toggleButtons();
                 });
