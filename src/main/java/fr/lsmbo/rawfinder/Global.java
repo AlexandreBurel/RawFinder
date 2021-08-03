@@ -1,11 +1,11 @@
 package fr.lsmbo.rawfinder;
 
+import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.attribute.DosFileAttributes;
@@ -32,13 +32,11 @@ public class Global {
     public static File REPORTS_DIRECTORY;
     public static Boolean IS_FOLDER_LIKE;
     public static List<String> FOLDER_LIKE_RAW_DATA_TEMPLATE;
-    public static List<String> FOLDER_LIKE_RAW_DATA_EXTENSION;
     public static List<String> FILE_LIKE_RAW_DATA_TEMPLATE;
 
     public final static String[] MONTH_NAMES = {"janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"};
     private final static String[] units = new String[] { "octets", "ko", "Mo", "Go", "To" };
 
-//    public Global() throws Throwable {
     public static void initialize() throws Throwable {
         final Properties properties = new Properties();
         properties.load(Global.class.getClassLoader().getResourceAsStream("RawFinder.properties"));
@@ -48,28 +46,40 @@ public class Global {
         appDate = properties.getProperty("build-date");
 
         Gson gson = new Gson();
-        JsonReader reader = new JsonReader(new InputStreamReader(
-                Objects.requireNonNull(Global.class.getClassLoader().getResourceAsStream("settings.json")),
-                StandardCharsets.UTF_8));
+        JsonReader reader = new JsonReader(new InputStreamReader(getSettingsFile().openStream(), StandardCharsets.UTF_8));
         Settings settings = gson.fromJson(reader, Settings.class);
 
-//        RAW_DATA_DIRECTORY = new File(settings.getRawDataDirectory());
-//        RAW_DATA_ARCHIVES = new File(settings.getArchiveDirectory());
         RAW_DATA_DIRECTORY = settings.getRawDataDirectory().equals("") ? null : new File(settings.getRawDataDirectory());
         RAW_DATA_ARCHIVES = settings.getArchiveDirectory().equals("") ? null : new File(settings.getArchiveDirectory());
         REPORTS_DIRECTORY = new File(settings.getDefaultReportDirectory());
         IS_FOLDER_LIKE = settings.getFolderLike();
         FOLDER_LIKE_RAW_DATA_TEMPLATE = Arrays.stream(settings.getFolderLikeRawDataTemplate().split(" ")).collect(Collectors.toList());
-//        FOLDER_LIKE_RAW_DATA_EXTENSION = Arrays.stream(settings.getFolderLikeRawDataExtension().split(" ")).collect(Collectors.toList());
         FILE_LIKE_RAW_DATA_TEMPLATE = Arrays.stream(settings.getFileLikeRawDataTemplate().split(" ")).collect(Collectors.toList());
 
         // make sure the mandatory directories are available (if not, maybe the settings file is not encoded in UTF8 ?)
-//        if(!RAW_DATA_DIRECTORY.exists() || !RAW_DATA_DIRECTORY.isDirectory()) throw new Exception("Data directory '"+RAW_DATA_DIRECTORY.getAbsolutePath()+"' is not available");
-//        if(!RAW_DATA_ARCHIVES.exists() || !RAW_DATA_ARCHIVES.isDirectory()) throw new Exception("Archive directory '"+RAW_DATA_ARCHIVES.getAbsolutePath()+"' is not available");
         if(RAW_DATA_DIRECTORY == null) logger.warn("Data directory is not available");
         if(RAW_DATA_ARCHIVES == null) logger.warn("Archive directory is not available");
         // make sure the report directory exists, otherwise use the home directory
         if(!REPORTS_DIRECTORY.exists() && !REPORTS_DIRECTORY.mkdir()) REPORTS_DIRECTORY = new File(System.getProperty("user.home"));
+    }
+
+    private static URL getSettingsFile() {
+        URL url = Global.class.getClassLoader().getResource("settings.json");
+        if(url == null) throw new NullPointerException("Settings file is not found");
+        return url;
+    }
+
+    public static void updateSettingsFile() throws Throwable {
+        // gather settings
+        Settings settings = new Settings(RAW_DATA_DIRECTORY, RAW_DATA_ARCHIVES, IS_FOLDER_LIKE, FOLDER_LIKE_RAW_DATA_TEMPLATE, FILE_LIKE_RAW_DATA_TEMPLATE);
+        settings.setDefaultReportDirectory(REPORTS_DIRECTORY.getAbsolutePath());
+        // save as JSON to the settings file
+        String filePath = getSettingsFile().getFile();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), StandardCharsets.UTF_8));
+        gson.toJson(settings, bufferedWriter);
+        bufferedWriter.close();
+        logger.info("Settings have been saved to '" + filePath + "'");
     }
 
     public static Boolean areSettingsValid() {
@@ -110,11 +120,9 @@ public class Global {
                 // avoid obvious Windows Explorer files
                 if(file.getName().equals("desktop.ini")) return false;
                 // conditions: file name has to match the expected extension, and one parent must match the folder template
-//                return endsWithAny(file.getName(), FOLDER_LIKE_RAW_DATA_EXTENSION) &&
-//                        !getRawParentName(file).equals("");
                 return !getRawParentName(file).equals(""); // allows all files within a raw data directory
             }
-        } else if(file.isFile() && matchesAny(file.getName(), FILE_LIKE_RAW_DATA_TEMPLATE)) return false;
+        } else return file.isFile() && matchesAny(file.getName(), FILE_LIKE_RAW_DATA_TEMPLATE);
         return false;
     }
 
@@ -134,11 +142,8 @@ public class Global {
         return hostname;
     }
 
-//    private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM);
-//    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
     private static final SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyyMMdd-HHmmss");
     private static final SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-//    public  String formatDate(Long _date, boolean humanReadable) { return humanReadable ? dateFormat.format(_date) : simpleDateFormat.format(_date); }
     public static String simpleFormatDate(Long _date) { return simpleDateFormat1.format(_date); }
     public static String simpleFormatDate2(Long _date) { return simpleDateFormat2.format(_date); }
 

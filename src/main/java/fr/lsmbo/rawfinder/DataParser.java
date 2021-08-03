@@ -42,7 +42,6 @@ public class DataParser {
 
         // read raw-like files then (search archive files)
         Arrays.stream(Objects.requireNonNull(directory.listFiles())).filter(file -> file.isFile() && Global.IsRawData(file)).forEach(item -> {
-            // TODO check if the item has a parent matching a raw file (if folder like)
             File archive = findArchive(item);
             data.put(item, archive);
 

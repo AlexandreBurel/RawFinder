@@ -124,8 +124,11 @@ public class Gui {
         btnExport.setDisable(true);
         btnCancel.setDisable(true);
 
-        // open settings if they need to be modified
-        if(!Global.areSettingsValid()) settingsListener();
+        // open settings if they need to be modified, and auto start just after
+        if(!Global.areSettingsValid()) {
+            settingsListener();
+            startListener();
+        }
     }
 
     private String formatFileSize(long size) {

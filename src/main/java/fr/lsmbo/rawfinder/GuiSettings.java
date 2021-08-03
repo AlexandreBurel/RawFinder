@@ -1,6 +1,7 @@
 package fr.lsmbo.rawfinder;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
@@ -37,6 +38,10 @@ public class GuiSettings {
     @FXML
     TextField txtRawDataTemplate;
     @FXML
+    TextField txtReportDirectory;
+    @FXML
+    Button btnReportChooser;
+    @FXML
     Button btnSave;
     @FXML
     Button btnCancel;
@@ -55,6 +60,7 @@ public class GuiSettings {
         txtArchiveDirectory.setText(currentSettings.getArchiveDirectory());
         cmbRawDataFormat.setValue(rawDataTypes.get(currentSettings.getFolderLike()));
         txtRawDataTemplate.setText(currentSettings.getFolderLike() ? currentSettings.getFolderLikeRawDataTemplate() : currentSettings.getFileLikeRawDataTemplate());
+        txtReportDirectory.setText(currentSettings.getDefaultReportDirectory());
 
         cmbRawDataFormat.setOnAction((event -> {
             String selectedItem = cmbRawDataFormat.getSelectionModel().getSelectedItem();
@@ -74,9 +80,6 @@ public class GuiSettings {
     private void rawDataDirectoryButtonListener() {
         DirectoryChooser dc = new DirectoryChooser();
         dc.setTitle("Select Raw Data main directory");
-//        dc.setInitialDirectory(new File(txtRawDataDirectory.getText()));
-//        String path = txtRawDataDirectory.getText().equals("") ? System.getenv("HOME") : txtRawDataDirectory.getText();
-//        dc.setInitialDirectory(new File(path));
         dc.setInitialDirectory(getDirectory(txtRawDataDirectory));
         File directory = dc.showDialog(dialogStage);
         if(directory != null) {
@@ -88,9 +91,6 @@ public class GuiSettings {
     private void archiveDirectoryButtonListener() {
         DirectoryChooser dc = new DirectoryChooser();
         dc.setTitle("Select Archive main directory");
-//        dc.setInitialDirectory(new File(txtArchiveDirectory.getText()));
-//        String path = txtArchiveDirectory.getText().equals("") ? System.getenv("HOME") : txtArchiveDirectory.getText();
-//        dc.setInitialDirectory(new File(path));
         dc.setInitialDirectory(getDirectory(txtArchiveDirectory));
         File directory = dc.showDialog(dialogStage);
         if(directory != null) {
@@ -98,21 +98,22 @@ public class GuiSettings {
         }
     }
 
+    @FXML
+    private void reportDirectoryButtonListener() {
+        DirectoryChooser dc = new DirectoryChooser();
+        dc.setTitle("Select Reports default directory");
+        dc.setInitialDirectory(getDirectory(txtReportDirectory));
+        File directory = dc.showDialog(dialogStage);
+        if(directory != null) {
+            txtReportDirectory.setText(directory.getAbsolutePath());
+        }
+    }
+
     private File getDirectory(TextField textField) {
-        logger.info("ABU HOME='"+System.getProperty("user.home")+"'");
         File directory = new File(System.getProperty("user.home"));
-        if(textField != null && !textField.getText().equals("")) {
+        if(textField != null && textField.getText() != null && !textField.getText().equals("")) {
             directory = new File(textField.getText());
         }
-
-//        File directory = null;
-//        try {
-//            directory = new File(textField.getText());
-//        } catch (Throwable t) {
-//            logger.debug("ABU HOME='"+System.getenv("HOME")+"'");
-//            logger.error(t.getMessage(), t);
-//            t.printStackTrace();
-//        }
         return directory;
     }
 
@@ -127,6 +128,18 @@ public class GuiSettings {
         } else {
             Global.IS_FOLDER_LIKE = false;
             Global.FILE_LIKE_RAW_DATA_TEMPLATE = Arrays.stream(txtRawDataTemplate.getText().split(" ")).collect(Collectors.toList());
+        }
+        Global.REPORTS_DIRECTORY = new File(txtReportDirectory.getText());
+        // update settings file
+        try {
+            Global.updateSettingsFile();
+        } catch (Throwable t) {
+            logger.error("Settings could not be saved", t);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("RawFinder");
+            alert.setHeaderText("Error while saving settings, the new values will not be stored in the permanent file");
+            alert.setContentText(t.getMessage());
+            alert.showAndWait();
         }
         dialogStage.close();
     }

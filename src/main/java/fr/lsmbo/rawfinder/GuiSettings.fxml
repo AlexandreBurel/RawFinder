@@ -33,45 +33,42 @@
          <center>
              <GridPane prefWidth="580.0" BorderPane.alignment="CENTER">
                  <columnConstraints>
-                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="150.0"/>
-                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="150.0" />
+                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                  </columnConstraints>
                  <rowConstraints>
-                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER"/>
-                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER"/>
-                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER"/>
-                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER"/>
+                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
                  </rowConstraints>
                  <BorderPane.margin>
-                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                  </BorderPane.margin>
-                 <Label text="Raw data main directory"/>
-                 <Label text="Archive main directory" GridPane.rowIndex="1"/>
-                 <Label text="Raw data template" GridPane.rowIndex="3"/>
-                 <TextField fx:id="txtRawDataTemplate" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-                 <Label text="Raw data format" GridPane.rowIndex="2"/>
-                 <ChoiceBox fx:id="cmbRawDataFormat" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1"
-                            GridPane.rowIndex="2"/>
+                 <Label text="Raw data main directory" />
+                 <Label text="Archive main directory" GridPane.rowIndex="1" />
+                 <Label text="Raw data template" GridPane.rowIndex="3" />
+                 <TextField fx:id="txtRawDataTemplate" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                 <Label text="Raw data format" GridPane.rowIndex="2" />
+                 <ChoiceBox fx:id="cmbRawDataFormat" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                  <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1">
-                     <TextField fx:id="txtRawDataDirectory" HBox.hgrow="ALWAYS"/>
-                     <Button fx:id="btnRawDataChooser" mnemonicParsing="false"
-                             onAction="#rawDataDirectoryButtonListener" text="..."/>
+                     <TextField fx:id="txtRawDataDirectory" HBox.hgrow="ALWAYS" />
+                     <Button fx:id="btnRawDataChooser" mnemonicParsing="false" onAction="#rawDataDirectoryButtonListener" text="..." />
                  </HBox>
-                 <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1"
-                       GridPane.rowIndex="1">
-                     <TextField fx:id="txtArchiveDirectory" HBox.hgrow="ALWAYS"/>
-                     <Button fx:id="btnArchiveChooser" mnemonicParsing="false"
-                             onAction="#archiveDirectoryButtonListener" text="..."/>
+                 <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                     <TextField fx:id="txtArchiveDirectory" HBox.hgrow="ALWAYS" />
+                     <Button fx:id="btnArchiveChooser" mnemonicParsing="false" onAction="#archiveDirectoryButtonListener" text="..." />
                  </HBox>
+               <Label text="Reports default directory" GridPane.rowIndex="4" />
+               <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                  <children>
+                     <TextField fx:id="txtReportDirectory" HBox.hgrow="ALWAYS" />
+                     <Button fx:id="btnReportChooser" mnemonicParsing="false" onAction="#reportDirectoryButtonListener" text="..." />
+                  </children>
+               </HBox>
              </GridPane>
          </center>
-         <top>
-            <Label alignment="CENTER" maxWidth="1.7976931348623157E308" style="-fx-font-style: italic;" text="Modify the file config/settings.json to update settings permanently" BorderPane.alignment="CENTER">
-               <BorderPane.margin>
-                  <Insets top="10.0" />
-               </BorderPane.margin>
-            </Label>
-         </top>
       </BorderPane>
    </children>
 </AnchorPane>
