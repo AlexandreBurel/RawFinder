@@ -6,7 +6,7 @@
 
     <groupId>fr.lsmbo</groupId>
     <artifactId>RawFinder</artifactId>
-    <version>1.3</version>
+    <version>1.4</version>
     <description>Search raw files in the archives</description>
 
     <properties>
