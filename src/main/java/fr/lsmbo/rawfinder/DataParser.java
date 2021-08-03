@@ -31,9 +31,9 @@ public class DataParser {
         readDirectory(parentDirectory);
         HashMap<String, Integer> countPerStatus = getCountPerStatus();
         logger.info("Data directory is parsed\n\nRawFinder search summary:\n" +
-        "- Number of fully archived raw data: " + countPerStatus.get(Status.FULLY_ARCHIVED.toString()) + "\n" +
-        "- Number of partially archived raw data: " + countPerStatus.get(Status.PARTIALLY_ARCHIVED.toString()) + "\n" +
-        "- Number of raw data not archived at all: " + countPerStatus.get(Status.NOT_ARCHIVED.toString()) + "\n");
+        "- Number of fully archived raw data: " + countPerStatus.getOrDefault(Status.FULLY_ARCHIVED.toString(), 0) + "\n" +
+        "- Number of partially archived raw data: " + countPerStatus.getOrDefault(Status.PARTIALLY_ARCHIVED.toString(), 0) + "\n" +
+        "- Number of raw data not archived at all: " + countPerStatus.getOrDefault(Status.NOT_ARCHIVED.toString(), 0) + "\n");
     }
 
     private void readDirectory(File directory) {
