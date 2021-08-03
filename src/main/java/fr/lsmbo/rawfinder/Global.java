@@ -71,8 +71,8 @@ public class Global {
 
     public static void updateSettingsFile() throws Throwable {
         // gather settings
-        Settings settings = new Settings(RAW_DATA_DIRECTORY, RAW_DATA_ARCHIVES, IS_FOLDER_LIKE, FOLDER_LIKE_RAW_DATA_TEMPLATE, FILE_LIKE_RAW_DATA_TEMPLATE);
-        settings.setDefaultReportDirectory(REPORTS_DIRECTORY.getAbsolutePath());
+        Settings settings = new Settings(RAW_DATA_DIRECTORY, RAW_DATA_ARCHIVES, IS_FOLDER_LIKE, FOLDER_LIKE_RAW_DATA_TEMPLATE, FILE_LIKE_RAW_DATA_TEMPLATE, REPORTS_DIRECTORY);
+//        settings.setDefaultReportDirectory(REPORTS_DIRECTORY.getAbsolutePath());
         // save as JSON to the settings file
         String filePath = getSettingsFile().getFile();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

@@ -49,7 +49,7 @@ public class GuiSettings {
     @FXML
     public void initialize(Stage _dialogStage) {
         dialogStage = _dialogStage;
-        currentSettings = new Settings(Global.RAW_DATA_DIRECTORY, Global.RAW_DATA_ARCHIVES, Global.IS_FOLDER_LIKE, Global.FOLDER_LIKE_RAW_DATA_TEMPLATE, Global.FILE_LIKE_RAW_DATA_TEMPLATE);
+        currentSettings = new Settings(Global.RAW_DATA_DIRECTORY, Global.RAW_DATA_ARCHIVES, Global.IS_FOLDER_LIKE, Global.FOLDER_LIKE_RAW_DATA_TEMPLATE, Global.FILE_LIKE_RAW_DATA_TEMPLATE, Global.REPORTS_DIRECTORY);
 
         // fill the ChoiceBox
         cmbRawDataFormat.getItems().add(rawDataTypes.get(true));

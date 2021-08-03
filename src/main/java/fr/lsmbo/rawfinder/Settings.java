@@ -1,7 +1,5 @@
 package fr.lsmbo.rawfinder;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 import java.io.File;
 import java.util.List;
 
@@ -15,23 +13,13 @@ public class Settings {
     private String folderLikeRawDataExtension;
     private String fileLikeRawDataTemplate;
 
-
-    public Settings(String rawDataDirectory, String archiveDirectory, String defaultReportDirectory, Boolean isFolderLike, String folderLikeRawDataTemplate, String folderLikeRawDataExtension, String fileLikeRawDataTemplate) {
-        this.rawDataDirectory = rawDataDirectory;
-        this.archiveDirectory = archiveDirectory;
-        this.defaultReportDirectory = defaultReportDirectory;
-        this.isFolderLike = isFolderLike;
-        this.folderLikeRawDataTemplate = folderLikeRawDataTemplate;
-        this.folderLikeRawDataExtension = folderLikeRawDataExtension;
-        this.fileLikeRawDataTemplate = fileLikeRawDataTemplate;
-    }
-
-    public Settings(File rawDataDirectory, File archiveDirectory, Boolean isFolderLike, List<String> folderLikeRawDataTemplate, List<String> fileLikeRawDataTemplate) {
+    public Settings(File rawDataDirectory, File archiveDirectory, Boolean isFolderLike, List<String> folderLikeRawDataTemplate, List<String> fileLikeRawDataTemplate, File defaultReportDirectory) {
         this.rawDataDirectory = rawDataDirectory == null ? "" : rawDataDirectory.getAbsolutePath();
         this.archiveDirectory = archiveDirectory == null ? "" : archiveDirectory.getAbsolutePath();
         this.isFolderLike = isFolderLike;
         this.folderLikeRawDataTemplate = String.join(" ", folderLikeRawDataTemplate);
         this.fileLikeRawDataTemplate = String.join(" ", fileLikeRawDataTemplate);
+        this.defaultReportDirectory = defaultReportDirectory == null ? "" : defaultReportDirectory.getAbsolutePath();
     }
 
     public Settings() {}
