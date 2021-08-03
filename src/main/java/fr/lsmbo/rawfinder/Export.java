@@ -159,21 +159,14 @@ public class Export {
             addCell(row, 10, (missingOrIncorrectArchives.get(currentRawFileName) == 0 ? "TRUE" : "FALSE"), style); //K
             lastRawFileName = currentRawFileName;
 
-//            Status status = Status.NOT_ARCHIVED;
-//            if(missingOrIncorrectArchives.get(currentRawFileName) == 0) {
-//                status = Status.FULLY_ARCHIVED;
-//            } else if(!missingOrIncorrectArchives.get(currentRawFileName).equals(nbFilesPerRawFolder.get(currentRawFileName))) {
-//                status = Status.PARTIALLY_ARCHIVED;
-//            }
-//            addCell(row, 11, status.toString(), style); //L
             String status = rawData.get(currentRawFileName).getStatus();
             addCell(row, 11, status, style); //L
         }
 
         // final loop to display the summary of how many raw data is fully/partially/not archived
-        addCell(sheet.getRow(rowForFullyArchived), 1, ""+countPerStatus.get(Status.FULLY_ARCHIVED.toString()), defaultStyle);
-        addCell(sheet.getRow(rowForFullyArchived + 1), 1, ""+countPerStatus.get(Status.PARTIALLY_ARCHIVED.toString()), defaultStyle);
-        addCell(sheet.getRow(rowForFullyArchived + 2), 1, ""+countPerStatus.get(Status.NOT_ARCHIVED.toString()), defaultStyle);
+        addCell(sheet.getRow(rowForFullyArchived), 1, ""+countPerStatus.getOrDefault(Status.FULLY_ARCHIVED.toString(), 0), defaultStyle);
+        addCell(sheet.getRow(rowForFullyArchived + 1), 1, ""+countPerStatus.getOrDefault(Status.PARTIALLY_ARCHIVED.toString(), 0), defaultStyle);
+        addCell(sheet.getRow(rowForFullyArchived + 2), 1, ""+countPerStatus.getOrDefault(Status.NOT_ARCHIVED.toString(), 0), defaultStyle);
 
         // add autofilters
         sheet.setAutoFilter(CellRangeAddress.valueOf("A"+(headerLine+1)+":L"+(rowNum-1)));
